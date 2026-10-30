@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="si" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Physics | ශානක සඳරුවන් (Shanaka Sadaruwan)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Noto Sans Sinhala & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Noto+Sans+Sinhala:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBlue: '#0F172A',
+                        brandRoyal: '#1E40AF',
+                        brandAccentBlue: '#2563EB',
+                        brandYellow: '#FACC15',
+                        brandGold: '#EAB308',
+                        brandRed: '#DC2626',
+                        brandRedDark: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans Sinhala', 'Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                        'shimmer': 'shimmer 2.5s infinite linear',
+                        'spin-slow': 'spin 12s linear infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(250, 204, 21, 0.6), 0 0 30px rgba(220, 38, 38, 0.4)' },
+                            '50%': { boxShadow: '0 0 30px rgba(250, 204, 21, 0.9), 0 0 50px rgba(220, 38, 38, 0.7)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans Sinhala', 'Inter', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .glow-box-red {
+            border: 3px solid #dc2626;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 0 15px rgba(220, 38, 38, 0.2);
+        }
+        .glow-box-yellow {
+            border: 3px solid #facc15;
+            box-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brandYellow selection:text-black">
+
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-yellow-500/30 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- LOGO BRANDING SECTION -->
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="switchNavTab('home')">
+                <div class="relative w-12 h-12 flex items-center justify-center">
+                    <!-- SVG Creative Quantum Logo -->
+                    <svg class="w-full h-full animate-spin-slow drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="50" cy="50" rx="42" ry="16" stroke="#FACC15" stroke-width="3" transform="rotate(30 50 50)"/>
+                        <ellipse cx="50" cy="50" rx="42" ry="16" stroke="#DC2626" stroke-width="3" transform="rotate(90 50 50)"/>
+                        <ellipse cx="50" cy="50" rx="42" ry="16" stroke="#2563EB" stroke-width="3" transform="rotate(150 50 50)"/>
+                        <circle cx="50" cy="50" r="10" fill="url(#gradCore)"/>
+                        <circle cx="75" cy="35" r="4" fill="#FACC15" class="animate-ping"/>
+                        <defs>
+                            <radialGradient id="gradCore" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(10)">
+                                <stop stop-color="#FACC15"/>
+                                <stop offset="1" stop-color="#DC2626"/>
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center font-black text-[10px] text-white">
+                        A/L
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-yellow-400 tracking-wider flex items-center gap-2">
+                        PHYSICS <span class="bg-gradient-to-r from-red-600 to-yellow-500 text-slate-950 text-xs px-2.5 py-0.5 rounded-full font-black shadow-md">HUB</span>
+                    </h1>
+                    <p class="text-xs text-blue-300 font-semibold">ශානක සඳරුවන් <span class="text-gray-400 hidden sm:inline">| BSc Eng (Peradeniya)</span></p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-2">
+                <button onclick="switchNavTab('home')" class="nav-btn-home px-3 py-2 rounded-xl text-sm font-bold text-yellow-400 hover:bg-slate-800 transition"><i class="fa-solid fa-house mr-1"></i> මූල පිටුව</button>
+                <button onclick="switchNavTab('videos')" class="nav-btn-videos px-3 py-2 rounded-xl text-sm font-bold text-gray-300 hover:text-yellow-400 hover:bg-slate-800 transition"><i class="fa-solid fa-play-circle mr-1"></i> වීඩියෝ පාඩම්</button>
+                <button onclick="switchNavTab('tutes')" class="nav-btn-tutes px-3 py-2 rounded-xl text-sm font-bold text-gray-300 hover:text-yellow-400 hover:bg-slate-800 transition"><i class="fa-solid fa-book-open mr-1"></i> ටියුට් & සටහන්</button>
+                <button onclick="switchNavTab('simulations')" class="nav-btn-simulations px-3 py-2 rounded-xl text-sm font-bold text-gray-300 hover:text-yellow-400 hover:bg-slate-800 transition"><i class="fa-solid fa-atom mr-1"></i> ප්‍රායෝගික පරීක්ෂණ</button>
+            </nav>
+
+            <!-- Auth Header Buttons -->
+            <div id="authHeaderContainer" class="flex items-center space-x-3">
+                <button onclick="openModal('loginModal')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> සිසු පිවිසුම
+                </button>
+                <button onclick="openModal('registerModal')" class="bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 bg-[length:200%_auto] animate-shimmer text-slate-950 font-black px-4 py-2 rounded-xl shadow-lg text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> ලියාපදිංචිය
+                </button>
+                <button onclick="openModal('teacherLoginModal')" class="bg-slate-800 border border-yellow-500/50 hover:bg-slate-700 text-yellow-400 font-bold px-3 py-2 rounded-xl text-sm transition flex items-center gap-1.5" title="ගුරු පිවිසුම">
+                    <i class="fa-solid fa-chalkboard-user"></i> ගුරු පිවිසුම
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE SUBNAV -->
+    <div class="md:hidden bg-slate-950/90 border-b border-slate-800 px-4 py-2 flex justify-around text-xs">
+        <button onclick="switchNavTab('home')" class="text-yellow-400 font-bold"><i class="fa-solid fa-house"></i> මූලික</button>
+        <button onclick="switchNavTab('videos')" class="text-gray-300 font-bold"><i class="fa-solid fa-video"></i> වීඩියෝ</button>
+        <button onclick="switchNavTab('tutes')" class="text-gray-300 font-bold"><i class="fa-solid fa-book"></i> ටියුට්</button>
+        <button onclick="switchNavTab('simulations')" class="text-gray-300 font-bold"><i class="fa-solid fa-atom"></i> පරීක්ෂණ</button>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 space-y-12 flex-grow w-full">
+
+        <!-- ================= HOME VIEW ================= -->
+        <div id="viewHome" class="space-y-12">
+            <section class="relative rounded-3xl overflow-hidden glow-box-red bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 p-6 sm:p-12 shadow-2xl">
+                <div class="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-block bg-gradient-to-r from-red-600 to-red-700 border-2 border-yellow-400 px-6 py-3 rounded-2xl shadow-xl animate-float">
+                            <span class="text-2xl sm:text-4xl font-black text-white tracking-wide drop-shadow-md">
+                                A/L භෞතික විද්‍යාව - අසමසම මඟපෙන්වීම
+                            </span>
+                        </div>
+                        <p class="text-sm sm:text-base text-gray-300 font-medium leading-relaxed">
+                            පේරාදෙණිය විශ්වවිද්‍යාලයීය ඉංජිනේරු උපාධිධාරී, ජ්‍යෙෂ්ඨ භෞතික විද්‍යා දේශක <strong>ශානක සඳරුවන්</strong> විසින් මෙහෙයවනු ලබන උසස් පෙළ භෞතික විද්‍යා විශිෂ්ඨතා මධ්‍යස්ථානය. සියලුම A/L බැච් (2025 සිට 2060 දක්වා) සිසුන් සදහා සිද්ධාන්ත (Theory) හා පුනරීක්ෂණ (Revision) පන්ති.
+                        </p>
+                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                            <button onclick="openModal('registerModal')" class="bg-red-600 hover:bg-red-700 text-white font-black px-8 py-3.5 rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus"></i> දැන්ම ලියාපදිංචි වන්න
+                            </button>
+                            <button onclick="switchNavTab('videos')" class="bg-slate-800 border border-yellow-400/50 hover:bg-slate-700 text-yellow-300 font-bold px-7 py-3.5 rounded-2xl shadow-lg transition text-base flex items-center gap-2">
+                                <i class="fa-solid fa-play-circle"></i> පාඩම් නරඹන්න
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lecturer Profile Card -->
+                    <div class="lg:col-span-5 flex flex-col items-center justify-center">
+                        <div class="relative w-full max-w-sm bg-gradient-to-b from-blue-900 to-slate-900 rounded-3xl p-6 border-2 border-yellow-400 shadow-2xl text-center space-y-4 glow-box-yellow">
+                            <div class="absolute -top-6 -right-6 text-yellow-400 opacity-80 text-6xl animate-spin" style="animation-duration: 20s;">
+                                <i class="fa-solid fa-atom"></i>
+                            </div>
+                            <div class="w-40 h-40 mx-auto rounded-full border-4 border-yellow-400 bg-slate-800 flex items-center justify-center overflow-hidden shadow-2xl relative group">
+                                <img src="https://lh3.googleusercontent.com/pw/AP1GczNBgD6tG1Xy4H4E_S3f22lZ4XzJk4-n-b4-Y-8=s500" alt="ශානක සඳරුවන්" class="w-full h-full object-cover object-center transform group-hover:scale-110 transition duration-300" onerror="this.onerror=null; this.src='https://placehold.co/400x400/1e293b/facc15?text=Shanaka+Sadaruwan';">
+                                <div class="absolute bottom-0 w-full bg-red-600/90 py-1 text-xs font-black text-white tracking-wider">
+                                    PHYSICS
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 text-xs font-black px-4 py-1.5 rounded-full uppercase shadow-md border border-yellow-300 mb-1">
+                                    <i class="fa-solid fa-award text-red-700 mr-1"></i> ජ්‍යේෂ්ඨ භෞතික විද්‍යා දේශක
+                                </div>
+                                <h2 class="text-2xl font-black text-white tracking-wide">ශානක සඳරුවන්</h2>
+                                <p class="text-yellow-300 text-xs font-bold">BSc Engineering (University of Peradeniya)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FEATURES -->
+            <section class="bg-gradient-to-r from-red-950 via-slate-900 to-blue-950 rounded-3xl p-6 sm:p-10 border-4 border-red-600 shadow-2xl">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-5 text-center">
+                        <div class="bg-gradient-to-tr from-yellow-400 to-yellow-500 text-slate-950 p-8 rounded-3xl shadow-2xl border-4 border-red-600">
+                            <i class="fa-solid fa-bullseye text-5xl text-red-600 mb-3 animate-bounce"></i>
+                            <h3 class="text-3xl font-black tracking-tight leading-tight">
+                                ඔබගේ A/L ඉලක්කයට<br><span class="text-red-700">නිවැරදිම මඟපෙන්වීම!</span>
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 space-y-4">
+                        <h4 class="text-xl font-black text-yellow-400 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-star text-yellow-400"></i> අපගේ පංතියේ විශේෂතා:
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-start gap-3 bg-slate-900/90 p-4 rounded-2xl border border-yellow-500/30">
+                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-bold">✓</div>
+                                <div>
+                                    <h5 class="text-sm font-extrabold text-white">සම්පූර්ණ සිද්ධාන්ත හා පුනරීක්ෂණ</h5>
+                                    <p class="text-xs text-gray-400 mt-0.5">සියලුම A/L බැච් සදහා විශේෂිත පාඩම් මාලා</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-slate-900/90 p-4 rounded-2xl border border-yellow-500/30">
+                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-bold">✓</div>
+                                <div>
+                                    <h5 class="text-sm font-extrabold text-white">සරල ක්‍රමවේදය</h5>
+                                    <p class="text-xs text-gray-400 mt-0.5">ඕනෑම මට්ටමක සිසුවෙකුට තේරුම්ගත හැකි අයුරින්</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-slate-900/90 p-4 rounded-2xl border border-yellow-500/30">
+                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-bold">✓</div>
+                                <div>
+                                    <h5 class="text-sm font-extrabold text-white">ප්‍රශ්න පත්‍ර සාකච්ඡාව</h5>
+                                    <p class="text-xs text-gray-400 mt-0.5">පසුගිය විභාග ගැඹුරින් විශ්ලේෂණය කිරීම</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-slate-900/90 p-4 rounded-2xl border border-yellow-500/30">
+                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-bold">✓</div>
+                                <div>
+                                    <h5 class="text-sm font-extrabold text-white">ප්‍රායෝගික පරීක්ෂණ සිමියුලේෂන්</h5>
+                                    <p class="text-xs text-gray-400 mt-0.5">විෂය අවබෝධය පහසු කරන නවීන තාක්ෂණය</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= VIDEOS VIEW ================= -->
+        <div id="viewVideos" class="space-y-6 hidden">
+            <div class="glass-panel p-6 rounded-3xl border border-yellow-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-play-circle text-red-600"></i> වීඩියෝ පාඩම් මාලාව (Video Vault)
+                    </h2>
+                    <p class="text-xs text-gray-300 mt-1">ඔබගේ A/L කණ්ඩායම (Batch) සහ Stream Mode (Theory / Revision) අනුව පාඩම් නරඹන්න.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">Batch Year</label>
+                        <select id="filterVideoBatch" onchange="renderStudentVideos()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-yellow-400">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">Stream Mode</label>
+                        <select id="filterVideoStream" onchange="renderStudentVideos()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-yellow-400">
+                            <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                            <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="studentVideoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </div>
+
+        <!-- ================= TUTES VIEW ================= -->
+        <div id="viewTutes" class="space-y-6 hidden">
+            <div class="glass-panel p-6 rounded-3xl border border-yellow-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-red-600"></i> ටියුට්ස් සහ කෙටි සටහන් (Tutes & Notes)
+                    </h2>
+                    <p class="text-xs text-gray-300 mt-1">ඔබගේ බැච් එකට අදාළ PDF ටියුට්ස් සහ අධ්‍යයන සටහන් මෙතැනින් බාගත කරගන්න.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">Batch Year</label>
+                        <select id="filterTuteBatch" onchange="renderStudentTutes()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-yellow-400">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">Stream Mode</label>
+                        <select id="filterTuteStream" onchange="renderStudentTutes()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-yellow-400">
+                            <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                            <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="studentTuteGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </div>
+
+        <!-- ================= SIMULATIONS VIEW ================= -->
+        <div id="viewSimulations" class="space-y-6 hidden">
+            <div class="glass-panel p-6 rounded-3xl border border-yellow-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-atom text-red-600"></i> ප්‍රායෝගික පරීක්ෂණ සිමියුලේෂන් (Simulations)
+                    </h2>
+                    <p class="text-xs text-gray-300 mt-1">භෞතික විද්‍යා ප්‍රායෝගික පරීක්ෂණ සජීවීව අත්විඳින්න.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">Batch Year</label>
+                        <select id="filterSimBatch" onchange="renderStudentSimulations()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-yellow-400">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">Stream Mode</label>
+                        <select id="filterSimStream" onchange="renderStudentSimulations()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-yellow-400">
+                            <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                            <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="studentSimGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </div>
+
+        <!-- ================= TEACHER DASHBOARD VIEW ================= -->
+        <div id="viewTeacherDashboard" class="space-y-8 hidden">
+            <div class="bg-gradient-to-r from-red-950 via-slate-900 to-blue-950 p-6 rounded-3xl border-2 border-red-600 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center text-white text-2xl font-black">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-yellow-400">ගුරු පාලක මණ්ඩලය (Teacher Control Panel)</h2>
+                        <p class="text-xs text-gray-300">සාදරයෙන් පිළිගනිමු, ශානක සඳරුවන් සර්. (Live Cloud Sync Active)</p>
+                    </div>
+                </div>
+                <button onclick="teacherLogout()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> ගුරු පිවිසුමෙන් ඉවත් වන්න
+                </button>
+            </div>
+
+            <!-- Teacher Tabs Container -->
+            <div class="glass-panel p-6 rounded-3xl border border-yellow-500/30 space-y-6">
+                <!-- Tabs Nav -->
+                <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-4">
+                    <button onclick="switchTeacherTab('students')" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-yellow-400 text-slate-950 transition flex items-center gap-2" id="tTabStudents">
+                        <i class="fa-solid fa-users"></i> ලියාපදිංචි සිසුන් & අනුමැතිය
+                    </button>
+                    <button onclick="switchTeacherTab('videos')" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-slate-800 text-gray-300 hover:text-white transition flex items-center gap-2" id="tTabVideos">
+                        <i class="fa-solid fa-video"></i> වීඩියෝ එකතු කිරීම / ඉවත් කිරීම
+                    </button>
+                    <button onclick="switchTeacherTab('tutes')" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-slate-800 text-gray-300 hover:text-white transition flex items-center gap-2" id="tTabTutes">
+                        <i class="fa-solid fa-file-pdf"></i> Tute / Notes එකතු කිරීම / ඉවත් කිරීම
+                    </button>
+                    <button onclick="switchTeacherTab('simulations')" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-slate-800 text-gray-300 hover:text-white transition flex items-center gap-2" id="tTabSimulations">
+                        <i class="fa-solid fa-atom"></i> Simulation එකතු කිරීම / ඉවත් කිරීම
+                    </button>
+                </div>
+
+                <!-- TAB 1: REGISTERED STUDENTS LIST -->
+                <div id="teacherSubStudents" class="space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="text-lg font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-user-graduate text-yellow-400"></i> ලියාපදිංචි වූ සිසුන් පාලනය සහ අනුමැතිය
+                        </h3>
+                        <div class="w-full sm:w-64">
+                            <input type="text" id="searchStudentInput" onkeyup="renderTeacherStudentsTable()" placeholder="නම හෝ ඊමේල් මඟින් සොයන්න..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-yellow-400">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-900 text-yellow-400 border-b border-slate-800">
+                                    <th class="p-3">සිසුවාගේ නම</th>
+                                    <th class="p-3">ඊමේල් ලිපිනය</th>
+                                    <th class="p-3">දුරකථන අංකය</th>
+                                    <th class="p-3">Batch Year</th>
+                                    <th class="p-3">Stream Mode</th>
+                                    <th class="p-3">තත්ත්වය (Approval)</th>
+                                    <th class="p-3 text-center">ක්‍රියාකාරකම්</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherStudentsTableBody" class="divide-y divide-slate-800 text-gray-300">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 2: ADD & DELETE VIDEOS -->
+                <div id="teacherSubVideos" class="space-y-6 hidden">
+                    <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 max-w-2xl mx-auto space-y-4">
+                        <h3 class="text-lg font-black text-yellow-400 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-plus"></i> නව වීඩියෝ පාඩමක් එක්කිරීම
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">ඉලක්කගත Batch Year</label>
+                                <select id="teacherVideoBatch" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-yellow-400">
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">ඉලක්කගත Stream Mode</label>
+                                <select id="teacherVideoStream" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-yellow-400">
+                                    <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                                    <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">පාඩමේ මාතෘකාව (Lesson Title)</label>
+                            <input type="text" id="tVideoTitle" placeholder="උදා: නිව්ටන් නියම සහ ගුරුත්වාකර්ෂණය" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">විෂය ඒකකය (Unit / Category)</label>
+                            <input type="text" id="tVideoUnit" placeholder="උදා: යාන්ත්‍ර විද්‍යාව (Mechanics)" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">YouTube / Video Embed Link or ID</label>
+                            <input type="text" id="tVideoLink" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">කෙටි විස්තරය (Description)</label>
+                            <textarea id="tVideoDesc" rows="2" placeholder="පාඩම පිළිබඳ කෙටි සටහනක්..." class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400"></textarea>
+                        </div>
+                        <button onclick="handleAddVideo()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg">
+                            වීඩියෝ පාඩම ප්‍රකාශයට පත් කරන්න
+                        </button>
+                    </div>
+
+                    <div class="space-y-3 pt-6 border-t border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-sm font-bold text-yellow-400">පවතින වීඩියෝ පාඩම් ලැයිස්තුව (ඉවත් කිරීම සදහා)</h4>
+                            <span class="text-xs text-gray-400">ඕනෑම පාඩමක් පහසුවෙන් ඉවත් කිරීමට <i class="fa-solid fa-trash text-red-500"></i> ඔබන්න.</span>
+                        </div>
+                        <div id="teacherVideoList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: ADD & DELETE TUTES -->
+                <div id="teacherSubTutes" class="space-y-6 hidden">
+                    <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 max-w-2xl mx-auto space-y-4">
+                        <h3 class="text-lg font-black text-yellow-400 flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf"></i> නව Tute / Note එකතු කිරීම
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">ඉලක්කගත Batch Year</label>
+                                <select id="teacherTuteBatch" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-yellow-400">
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">ඉලක්කගත Stream Mode</label>
+                                <select id="teacherTuteStream" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-yellow-400">
+                                    <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                                    <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">ටියුට් නම (Tute Title)</label>
+                            <input type="text" id="tTuteTitle" placeholder="උදා: යාන්ත්‍ර විද්‍යාව ගැටලු 100" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">PDF / Download Link URL</label>
+                            <input type="text" id="tTuteLink" placeholder="https://drive.google.com/..." class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">විස්තරය (Description)</label>
+                            <input type="text" id="tTuteDesc" placeholder="කෙටි සටහනක්..." class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <button onclick="handleAddTute()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg">
+                            Tute එකතු කරන්න
+                        </button>
+                    </div>
+
+                    <div class="space-y-3 pt-6 border-t border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-sm font-bold text-yellow-400">පවතින Tute ලැයිස්තුව (ඉවත් කිරීම සදහා)</h4>
+                            <span class="text-xs text-gray-400">ඕනෑම Tute එකක් පහසුවෙන් ඉවත් කිරීමට <i class="fa-solid fa-trash text-red-500"></i> ඔබන්න.</span>
+                        </div>
+                        <div id="teacherTuteList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: ADD & DELETE SIMULATIONS -->
+                <div id="teacherSubSimulations" class="space-y-6 hidden">
+                    <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 max-w-2xl mx-auto space-y-4">
+                        <h3 class="text-lg font-black text-yellow-400 flex items-center gap-2">
+                            <i class="fa-solid fa-atom"></i> ප්‍රායෝගික සිමියුලේෂන් ලින්ක් එකතු කිරීම
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">ඉලක්කගත Batch Year</label>
+                                <select id="teacherSimBatch" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-yellow-400">
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">ඉලක්කගත Stream Mode</label>
+                                <select id="teacherSimStream" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-yellow-400">
+                                    <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                                    <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">සිමියුලේෂන් නම (Simulation Title)</label>
+                            <input type="text" id="tSimTitle" placeholder="උදා: වර්නියර් කැලිපරය (Vernier Calipers Simulator)" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Embed / Simulation Web URL</label>
+                            <input type="text" id="tSimLink" placeholder="https://phet.colorado.edu/sims/html/..." class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <button onclick="handleAddSimulation()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg">
+                            Simulation එක් කරන්න
+                        </button>
+                    </div>
+
+                    <div class="space-y-3 pt-6 border-t border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-sm font-bold text-yellow-400">පවතින Simulations ලැයිස්තුව (ඉවත් කිරීම සදහා)</h4>
+                            <span class="text-xs text-gray-400">ඕනෑම Simulation එකක් පහසුවෙන් ඉවත් කිරීමට <i class="fa-solid fa-trash text-red-500"></i> ඔබන්න.</span>
+                        </div>
+                        <div id="teacherSimList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-gray-500 space-y-2">
+        <p>© 2026 A Level පාර - Physics | ශානක සඳරුවන් (BSc Eng - Peradeniya)</p>
+        <p class="text-[10px] text-gray-400">Website Created by <span class="text-yellow-400 font-bold">Sasen Senanayake</span></p>
+        <p class="text-[10px] text-gray-600">Designed for A/L Physics Students Worldwide | All Batches (2025 - 2060)</p>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- STUDENT REGISTRATION MODAL -->
+    <div id="registerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-yellow-400 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl relative">
+            <button onclick="closeModal('registerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-red-600 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-black mb-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h3 class="text-2xl font-black text-yellow-400">සිසු ලියාපදිංචිය</h3>
+                <p class="text-xs text-gray-300">ඔබගේ විස්තර ඇතුළත් කර ගිණුමක් සාදාගන්න.</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">සම්පූර්ණ නම (Full Name)</label>
+                    <input type="text" id="regName" placeholder="උදා: කුෂාන් පෙරේරා" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">ඊමේල් ලිපිනය (Email)</label>
+                    <input type="email" id="regEmail" placeholder="student@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">දුරකථන අංකය (Phone)</label>
+                    <input type="text" id="regPhone" placeholder="0712345678" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">A/L Batch Year</label>
+                        <select id="regBatch" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white font-bold focus:outline-none focus:border-yellow-400">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Stream Mode</label>
+                        <select id="regStream" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white font-bold focus:outline-none focus:border-yellow-400">
+                            <option value="Theory">Theory (සිද්ධාන්ත)</option>
+                            <option value="Revision">Revision (පුනරීක්ෂණ)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">මුරපදය (Password)</label>
+                    <input type="password" id="regPassword" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <button onclick="handleStudentRegister()" class="w-full bg-gradient-to-r from-red-600 to-yellow-500 hover:opacity-95 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg">
+                    ලියාපදිංචි වීම තහවුරු කරන්න
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDENT LOGIN MODAL -->
+    <div id="loginModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-yellow-400 rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-5 shadow-2xl relative">
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-black mb-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </div>
+                <h3 class="text-2xl font-black text-yellow-400">සිසු පිවිසුම (Student Login)</h3>
+                <p class="text-xs text-gray-300">ඔබගේ ඊමේල් ලිපිනය හා මුරපදය ලබා දෙන්න.</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">ඊමේල් ලිපිනය (Email)</label>
+                    <input type="email" id="loginEmail" placeholder="student@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">මුරපදය (Password)</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <button onclick="handleStudentLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl text-sm transition shadow-lg">
+                    පිවිසෙන්න
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEACHER LOGIN MODAL -->
+    <div id="teacherLoginModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-red-600 rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-5 shadow-2xl relative">
+            <button onclick="closeModal('teacherLoginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-red-600 rounded-2xl mx-auto flex items-center justify-center text-white text-xl font-black mb-2">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <h3 class="text-2xl font-black text-yellow-400">ගුරු පිවිසුම (Teacher Portal)</h3>
+                <p class="text-xs text-gray-300">ශානක සඳරුවන් සර්ගේ ගුරු ගිණුමට පිවිසෙන්න.</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">පරිශීලක නාමය (Username)</label>
+                    <input type="text" id="tUsername" autocomplete="off" placeholder="shanaka sadaruwan" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">මුරපදය (Password)</label>
+                    <input type="password" id="tPassword" autocomplete="off" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <button onclick="handleTeacherLogin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-xl text-sm transition shadow-lg">
+                    ගුරු පුවරුවට පිවිසෙන්න
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CANVAS BACKGROUND PARTICLES -->
+    <script>
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = (Math.random() - 0.5) * 0.8;
+                this.color = Math.random() > 0.5 ? '#facc15' : '#2563eb';
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = 0.4;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+    </script>
+
+    <!-- FIREBASE INITIALIZATION & REALTIME DATA ENGINE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            deleteDoc, 
+            updateDoc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase Configuration
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config)
+            : {
+                apiKey: "AIzaSyD8QcHTi4dVEi8_9mCRunQT4TxDS3iJFgE",
+                authDomain: "p6-by-shanaka.firebaseapp.com",
+                projectId: "p6-by-shanaka",
+                storageBucket: "p6-by-shanaka.firebasestorage.app",
+                messagingSenderId: "179671407889",
+                appId: "1:179671407889:web:215ded81b174e09f7880b0"
+            };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Standard App Identifier Path Mandate
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'p6-physics-hub';
+        
+        // Firestore Collections Paths
+        const colStudents = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+        const colVideos = collection(db, 'artifacts', appId, 'public', 'data', 'videos');
+        const colTutes = collection(db, 'artifacts', appId, 'public', 'data', 'tutes');
+        const colSims = collection(db, 'artifacts', appId, 'public', 'data', 'sims');
+
+        // Global Application State Arrays
+        window.registeredStudents = [];
+        window.videoLessons = [];
+        window.tutesList = [];
+        window.simsList = [];
+
+        window.currentUser = JSON.parse(localStorage.getItem('p6_currentUser')) || null;
+        window.isTeacher = JSON.parse(sessionStorage.getItem('p6_isTeacherSession')) || false;
+
+        // Firebase Auth Init
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Auth fallback trigger:", err);
+            }
+        }
+
+        // Real-time Firestore Snapshot Listeners
+        function setupFirestoreListeners() {
+            // Listen to Students Collection
+            onSnapshot(colStudents, (snapshot) => {
+                window.registeredStudents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Keep session updated if user state changes (e.g. Approved status)
+                if (window.currentUser) {
+                    const matched = window.registeredStudents.find(s => s.id === window.currentUser.id || s.email === window.currentUser.email);
+                    if (matched) {
+                        window.currentUser = matched;
+                        localStorage.setItem('p6_currentUser', JSON.stringify(matched));
+                    }
+                }
+                window.refreshCurrentView();
+            }, (error) => console.error("Students listener error:", error));
+
+            // Listen to Videos Collection
+            onSnapshot(colVideos, (snapshot) => {
+                window.videoLessons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.refreshCurrentView();
+            }, (error) => console.error("Videos listener error:", error));
+
+            // Listen to Tutes Collection
+            onSnapshot(colTutes, (snapshot) => {
+                window.tutesList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.refreshCurrentView();
+            }, (error) => console.error("Tutes listener error:", error));
+
+            // Listen to Sims Collection
+            onSnapshot(colSims, (snapshot) => {
+                window.simsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.refreshCurrentView();
+            }, (error) => console.error("Sims listener error:", error));
+        }
+
+        // Firestore CRUD Operations Exposed Globally
+        window.dbRegisterStudent = async (studentObj) => {
+            const docId = 'std_' + Date.now();
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'students', docId);
+            studentObj.id = docId;
+            await setDoc(ref, studentObj);
+            return studentObj;
+        };
+
+        window.dbToggleStudentApproval = async (docId, currentStatus) => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'students', docId);
+            await updateDoc(ref, { approved: !currentStatus });
+        };
+
+        window.dbDeleteStudent = async (docId) => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'students', docId);
+            await deleteDoc(ref);
+        };
+
+        window.dbAddVideo = async (videoObj) => {
+            const docId = 'vid_' + Date.now();
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'videos', docId);
+            videoObj.id = docId;
+            await setDoc(ref, videoObj);
+        };
+
+        window.dbDeleteVideo = async (docId) => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'videos', docId);
+            await deleteDoc(ref);
+        };
+
+        window.dbAddTute = async (tuteObj) => {
+            const docId = 'tut_' + Date.now();
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'tutes', docId);
+            tuteObj.id = docId;
+            await setDoc(ref, tuteObj);
+        };
+
+        window.dbDeleteTute = async (docId) => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'tutes', docId);
+            await deleteDoc(ref);
+        };
+
+        window.dbAddSimulation = async (simObj) => {
+            const docId = 'sim_' + Date.now();
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'sims', docId);
+            simObj.id = docId;
+            await setDoc(ref, simObj);
+        };
+
+        window.dbDeleteSimulation = async (docId) => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'sims', docId);
+            await deleteDoc(ref);
+        };
+
+        // Initialize Cloud Engine
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setupFirestoreListeners();
+            }
+        });
+
+        initAuth();
+    </script>
+
+    <!-- UI UI CONTROLLER & APP LOGIC -->
+    <script>
+        // Populate Batch Selectors (2025 to 2060 A/L)
+        function populateBatchSelectors() {
+            let optionsHTML = '';
+            for (let year = 2025; year <= 2060; year++) {
+                optionsHTML += `<option value="${year} A/L">${year} A/L</option>`;
+            }
+
+            const selectors = [
+                'regBatch', 'filterVideoBatch', 'filterTuteBatch', 'filterSimBatch',
+                'teacherVideoBatch', 'teacherTuteBatch', 'teacherSimBatch'
+            ];
+
+            selectors.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const currentVal = el.value;
+                    el.innerHTML = optionsHTML;
+                    if (currentVal) el.value = currentVal;
+                }
+            });
+        }
+
+        // Modal Handlers
+        function openModal(id) {
+            if (id === 'teacherLoginModal') {
+                document.getElementById('tUsername').value = '';
+                document.getElementById('tPassword').value = '';
+            }
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            if (id === 'teacherLoginModal') {
+                document.getElementById('tUsername').value = '';
+                document.getElementById('tPassword').value = '';
+            }
+        }
+
+        // View Navigation Tab Controller
+        function switchNavTab(tabName) {
+            document.getElementById('viewHome').classList.add('hidden');
+            document.getElementById('viewVideos').classList.add('hidden');
+            document.getElementById('viewTutes').classList.add('hidden');
+            document.getElementById('viewSimulations').classList.add('hidden');
+            document.getElementById('viewTeacherDashboard').classList.add('hidden');
+
+            if (tabName === 'home') document.getElementById('viewHome').classList.remove('hidden');
+            if (tabName === 'videos') {
+                document.getElementById('viewVideos').classList.remove('hidden');
+                if (window.currentUser && window.currentUser.batch) {
+                    const bEl = document.getElementById('filterVideoBatch');
+                    if (bEl) bEl.value = window.currentUser.batch;
+                    const sEl = document.getElementById('filterVideoStream');
+                    if (sEl && window.currentUser.stream) sEl.value = window.currentUser.stream;
+                }
+                renderStudentVideos();
+            }
+            if (tabName === 'tutes') {
+                document.getElementById('viewTutes').classList.remove('hidden');
+                if (window.currentUser && window.currentUser.batch) {
+                    const bEl = document.getElementById('filterTuteBatch');
+                    if (bEl) bEl.value = window.currentUser.batch;
+                    const sEl = document.getElementById('filterTuteStream');
+                    if (sEl && window.currentUser.stream) sEl.value = window.currentUser.stream;
+                }
+                renderStudentTutes();
+            }
+            if (tabName === 'simulations') {
+                document.getElementById('viewSimulations').classList.remove('hidden');
+                if (window.currentUser && window.currentUser.batch) {
+                    const bEl = document.getElementById('filterSimBatch');
+                    if (bEl) bEl.value = window.currentUser.batch;
+                    const sEl = document.getElementById('filterSimStream');
+                    if (sEl && window.currentUser.stream) sEl.value = window.currentUser.stream;
+                }
+                renderStudentSimulations();
+            }
+            if (tabName === 'teacher') {
+                if (!window.isTeacher) {
+                    openModal('teacherLoginModal');
+                    return;
+                }
+                document.getElementById('viewTeacherDashboard').classList.remove('hidden');
+                renderTeacherStudentsTable();
+                renderTeacherManagementLists();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function refreshCurrentView() {
+            if (!document.getElementById('viewVideos').classList.contains('hidden')) renderStudentVideos();
+            if (!document.getElementById('viewTutes').classList.contains('hidden')) renderStudentTutes();
+            if (!document.getElementById('viewSimulations').classList.contains('hidden')) renderStudentSimulations();
+            if (!document.getElementById('viewTeacherDashboard').classList.contains('hidden')) {
+                renderTeacherStudentsTable();
+                renderTeacherManagementLists();
+            }
+            updateAuthHeader();
+        }
+
+        // Student Cloud Registration
+        async function handleStudentRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const batch = document.getElementById('regBatch').value;
+            const stream = document.getElementById('regStream').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!name || !email || !password) {
+                alert('කරුණාකර නම, ඊමේල් ලිපිනය සහ මුරපදය නිවැරදිව ඇතුළත් කරන්න.');
+                return;
+            }
+
+            if (window.registeredStudents.some(s => s.email.toLowerCase() === email.toLowerCase())) {
+                alert('මෙම ඊමේල් ලිපිනය මඟින් දැනටමත් ගිණුමක් ලියාපදිංචි කර ඇත.');
+                return;
+            }
+
+            const newStudentObj = {
+                name,
+                email,
+                phone,
+                batch,
+                stream,
+                password,
+                approved: false,
+                createdAt: new Date().toLocaleDateString('si-LK')
+            };
+
+            try {
+                const savedStudent = await window.dbRegisterStudent(newStudentObj);
+                window.currentUser = savedStudent;
+                window.isTeacher = false;
+                localStorage.setItem('p6_currentUser', JSON.stringify(savedStudent));
+                sessionStorage.setItem('p6_isTeacherSession', JSON.stringify(false));
+
+                closeModal('registerModal');
+                alert('සාර්ථකව ලියාපදිංචි විය! ඔබගේ ගිණුම අනුමත කිරීම සඳහා ශානක සඳරුවන් සර් (Firestore Realtime) වෙත යොමු කරන ලදී.');
+                updateAuthHeader();
+                switchNavTab('videos');
+            } catch (err) {
+                alert('ලියාපදිංචි වීමේ ගැටළුවක් ඇති විය: ' + err.message);
+            }
+        }
+
+        // Student Login
+        function handleStudentLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            const student = window.registeredStudents.find(s => s.email.toLowerCase() === email.toLowerCase() && s.password === password);
+            if (!student) {
+                alert('වැරදි ඊමේල් ලිපිනයක් හෝ මුරපදයකි.');
+                return;
+            }
+
+            window.currentUser = student;
+            window.isTeacher = false;
+            localStorage.setItem('p6_currentUser', JSON.stringify(student));
+            sessionStorage.setItem('p6_isTeacherSession', JSON.stringify(false));
+
+            closeModal('loginModal');
+            alert('සාර්ථකව පිවිසෙන ලදී!');
+            updateAuthHeader();
+            switchNavTab('videos');
+        }
+
+        // Teacher Portal Login
+        function handleTeacherLogin() {
+            const u = document.getElementById('tUsername').value.trim();
+            const p = document.getElementById('tPassword').value;
+
+            if (u === 'shanaka sadaruwan' && p === 'shanaka@p6') {
+                window.isTeacher = true;
+                window.currentUser = null;
+                sessionStorage.setItem('p6_isTeacherSession', JSON.stringify(true));
+
+                document.getElementById('tUsername').value = '';
+                document.getElementById('tPassword').value = '';
+
+                closeModal('teacherLoginModal');
+                alert('ගුරු පුවරුවට සාදරයෙන් පිළිගනිමු!');
+                updateAuthHeader();
+                switchNavTab('teacher');
+            } else {
+                alert('වැරදි ගුරු පරිශීලක නාමයක් හෝ මුරපදයකි.');
+            }
+        }
+
+        function studentLogout() {
+            window.currentUser = null;
+            localStorage.removeItem('p6_currentUser');
+            updateAuthHeader();
+            switchNavTab('home');
+            alert('පද්ධතියෙන් ඉවත් විය.');
+        }
+
+        function teacherLogout() {
+            window.isTeacher = false;
+            sessionStorage.removeItem('p6_isTeacherSession');
+            updateAuthHeader();
+            switchNavTab('home');
+            alert('ගුරු පද්ධතියෙන් ඉවත් විය.');
+        }
+
+        function updateAuthHeader() {
+            const container = document.getElementById('authHeaderContainer');
+            if (window.isTeacher) {
+                container.innerHTML = `
+                    <button onclick="switchNavTab('teacher')" class="bg-red-600 text-white font-black px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-chalkboard-user"></i> ශානක සඳරුවන් (ගුරු)
+                    </button>
+                    <button onclick="teacherLogout()" class="bg-slate-800 text-gray-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition">ඉවත් වන්න</button>
+                `;
+            } else if (window.currentUser) {
+                container.innerHTML = `
+                    <div class="bg-slate-800 border border-yellow-500/40 px-3 py-1.5 rounded-xl text-xs font-bold text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span class="truncate max-w-[100px]">${window.currentUser.name}</span> (${window.currentUser.batch})
+                    </div>
+                    <button onclick="studentLogout()" class="bg-slate-800 text-gray-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition">ඉවත් වන්න</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="openModal('loginModal')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i> සිසු පිවිසුම
+                    </button>
+                    <button onclick="openModal('registerModal')" class="bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 bg-[length:200%_auto] animate-shimmer text-slate-950 font-black px-4 py-2 rounded-xl shadow-lg text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> ලියාපදිංචිය
+                    </button>
+                    <button onclick="openModal('teacherLoginModal')" class="bg-slate-800 border border-yellow-500/50 hover:bg-slate-700 text-yellow-400 font-bold px-3 py-2 rounded-xl text-sm transition flex items-center gap-1.5" title="ගුරු පිවිසුම">
+                        <i class="fa-solid fa-chalkboard-user"></i> ගුරු
+                    </button>
+                `;
+            }
+        }
+
+        // Subtabs for Teacher Control Panel
+        function switchTeacherTab(subTab) {
+            document.getElementById('teacherSubStudents').classList.add('hidden');
+            document.getElementById('teacherSubVideos').classList.add('hidden');
+            document.getElementById('teacherSubTutes').classList.add('hidden');
+            document.getElementById('teacherSubSimulations').classList.add('hidden');
+
+            const tabBtns = document.querySelectorAll('.teacher-tab-btn');
+            tabBtns.forEach(btn => {
+                btn.classList.remove('bg-yellow-400', 'text-slate-950');
+                btn.classList.add('bg-slate-800', 'text-gray-300');
+            });
+
+            if (subTab === 'students') {
+                document.getElementById('teacherSubStudents').classList.remove('hidden');
+                document.getElementById('tTabStudents').classList.add('bg-yellow-400', 'text-slate-950');
+                document.getElementById('tTabStudents').classList.remove('bg-slate-800', 'text-gray-300');
+                renderTeacherStudentsTable();
+            } else if (subTab === 'videos') {
+                document.getElementById('teacherSubVideos').classList.remove('hidden');
+                document.getElementById('tTabVideos').classList.add('bg-yellow-400', 'text-slate-950');
+                document.getElementById('tTabVideos').classList.remove('bg-slate-800', 'text-gray-300');
+                renderTeacherManagementLists();
+            } else if (subTab === 'tutes') {
+                document.getElementById('teacherSubTutes').classList.remove('hidden');
+                document.getElementById('tTabTutes').classList.add('bg-yellow-400', 'text-slate-950');
+                document.getElementById('tTabTutes').classList.remove('bg-slate-800', 'text-gray-300');
+                renderTeacherManagementLists();
+            } else if (subTab === 'simulations') {
+                document.getElementById('teacherSubSimulations').classList.remove('hidden');
+                document.getElementById('tTabSimulations').classList.add('bg-yellow-400', 'text-slate-950');
+                document.getElementById('tTabSimulations').classList.remove('bg-slate-800', 'text-gray-300');
+                renderTeacherManagementLists();
+            }
+        }
+
+        // Render Live Students Table for Teacher
+        function renderTeacherStudentsTable() {
+            const tbody = document.getElementById('teacherStudentsTableBody');
+            const searchInput = document.getElementById('searchStudentInput');
+            const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+
+            const filtered = window.registeredStudents.filter(s => 
+                (s.name && s.name.toLowerCase().includes(searchVal)) || 
+                (s.email && s.email.toLowerCase().includes(searchVal))
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-500">ලියාපදිංචි වූ සිසුන් හමුනොගැණිනි (Firestore connected).</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => `
+                <tr class="hover:bg-slate-900/60 transition">
+                    <td class="p-3 font-bold text-white">${s.name}</td>
+                    <td class="p-3 text-yellow-300">${s.email}</td>
+                    <td class="p-3">${s.phone || '-'}</td>
+                    <td class="p-3"><span class="bg-blue-900/80 text-blue-300 px-2 py-0.5 rounded font-bold">${s.batch}</span></td>
+                    <td class="p-3"><span class="bg-red-900/80 text-red-300 px-2 py-0.5 rounded font-bold">${s.stream}</span></td>
+                    <td class="p-3">
+                        ${s.approved ? 
+                            '<span class="bg-green-900/80 text-green-300 px-2 py-1 rounded-full text-[10px] font-black"><i class="fa-solid fa-check-circle"></i> අනුමත කර ඇත</span>' : 
+                            '<span class="bg-amber-900/80 text-amber-300 px-2 py-1 rounded-full text-[10px] font-black"><i class="fa-solid fa-clock"></i> අනුමැතිය සඳහා</span>'}
+                    </td>
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick="toggleStudentApproval('${s.id}', ${s.approved})" class="${s.approved ? 'bg-amber-600 hover:bg-amber-700' : 'bg-green-600 hover:bg-green-700'} text-white font-bold px-2.5 py-1 rounded-lg text-[10px] transition">
+                            ${s.approved ? 'අවලංගු කරන්න' : 'අනුමත කරන්න'}
+                        </button>
+                        <button onclick="deleteStudent('${s.id}')" class="text-red-500 hover:text-white bg-red-950/60 hover:bg-red-600 p-1.5 rounded-lg transition" title="ඉවත් කරන්න"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function toggleStudentApproval(id, status) {
+            try {
+                await window.dbToggleStudentApproval(id, status);
+            } catch (e) {
+                alert("තත්ත්වය වෙනස් කිරීමේ දෝෂයක්: " + e.message);
+            }
+        }
+
+        async function deleteStudent(id) {
+            if (confirm('මෙම සිසුවාගේ ගිණුම Firestore වෙතින් සම්පූර්ණයෙන්ම ඉවත් කිරීමට අවශ්‍යද?')) {
+                try {
+                    await window.dbDeleteStudent(id);
+                } catch (e) {
+                    alert("ඉවත් කිරීමේ දෝෂයක්: " + e.message);
+                }
+            }
+        }
+
+        // Firestore Content Handlers (Add Video/Tute/Sim)
+        async function handleAddVideo() {
+            const batch = document.getElementById('teacherVideoBatch').value;
+            const stream = document.getElementById('teacherVideoStream').value;
+            const title = document.getElementById('tVideoTitle').value.trim();
+            const unit = document.getElementById('tVideoUnit').value.trim();
+            const link = document.getElementById('tVideoLink').value.trim();
+            const desc = document.getElementById('tVideoDesc').value.trim();
+
+            if (!title) {
+                alert('කරුණාකර පාඩමේ මාතෘකාව ඇතුළත් කරන්න.');
+                return;
+            }
+
+            try {
+                await window.dbAddVideo({ batch, stream, title, unit, link, desc });
+                document.getElementById('tVideoTitle').value = '';
+                document.getElementById('tVideoUnit').value = '';
+                document.getElementById('tVideoLink').value = '';
+                document.getElementById('tVideoDesc').value = '';
+                alert('වීඩියෝ පාඩම Firestore සජීවී දත්ත සමුදායට එක් කරන ලදී!');
+            } catch (e) {
+                alert("වීඩියෝව එක්කිරීම සාර්ථක වූයේ නැත: " + e.message);
+            }
+        }
+
+        async function handleAddTute() {
+            const batch = document.getElementById('teacherTuteBatch').value;
+            const stream = document.getElementById('teacherTuteStream').value;
+            const title = document.getElementById('tTuteTitle').value.trim();
+            const link = document.getElementById('tTuteLink').value.trim();
+            const desc = document.getElementById('tTuteDesc').value.trim();
+
+            if (!title) {
+                alert('කරුණාකර Tute නම ඇතුළත් කරන්න.');
+                return;
+            }
+
+            try {
+                await window.dbAddTute({ batch, stream, title, link, desc });
+                document.getElementById('tTuteTitle').value = '';
+                document.getElementById('tTuteLink').value = '';
+                document.getElementById('tTuteDesc').value = '';
+                alert('Tute එක Firestore වෙත සාර්ථකව එකතු කරන ලදී!');
+            } catch (e) {
+                alert("Tute එකතු කිරීම අසාර්ථක විය: " + e.message);
+            }
+        }
+
+        async function handleAddSimulation() {
+            const batch = document.getElementById('teacherSimBatch').value;
+            const stream = document.getElementById('teacherSimStream').value;
+            const title = document.getElementById('tSimTitle').value.trim();
+            const link = document.getElementById('tSimLink').value.trim();
+
+            if (!title) {
+                alert('කරුණාකර සිමියුලේෂන් නම ඇතුළත් කරන්න.');
+                return;
+            }
+
+            try {
+                await window.dbAddSimulation({ batch, stream, title, link });
+                document.getElementById('tSimTitle').value = '';
+                document.getElementById('tSimLink').value = '';
+                alert('සිමියුලේෂන් ලින්ක් එක සාර්ථකව Firestore වෙත එකතු කරන ලදී!');
+            } catch (e) {
+                alert("සිමියුලේෂන් එකතු කිරීම අසාර්ථක විය: " + e.message);
+            }
+        }
+
+        async function deleteItem(type, id) {
+            if (confirm('මෙම කොටස (Subject Matter) Firestore වෙතින් ඉවත් කිරීමට අවශ්‍ය බව ස්ථිරද?')) {
+                try {
+                    if (type === 'video') await window.dbDeleteVideo(id);
+                    if (type === 'tute') await window.dbDeleteTute(id);
+                    if (type === 'sim') await window.dbDeleteSimulation(id);
+                } catch (e) {
+                    alert("ඉවත් කිරීමට නොහැකි විය: " + e.message);
+                }
+            }
+        }
+
+        function renderTeacherManagementLists() {
+            // Videos List
+            const vList = document.getElementById('teacherVideoList');
+            vList.innerHTML = window.videoLessons.length === 0 ? '<p class="text-xs text-gray-500 py-2">එක්කළ වීඩියෝ පාඩම් නොමැත.</p>' :
+                window.videoLessons.map(v => `
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs shadow-md">
+                        <div class="space-y-1">
+                            <span class="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-bold">${v.batch} | ${v.stream}</span>
+                            <h5 class="font-bold text-white">${v.title}</h5>
+                            <p class="text-[10px] text-gray-400">${v.unit || 'Physics'}</p>
+                        </div>
+                        <button onclick="deleteItem('video', '${v.id}')" class="text-red-500 hover:text-white bg-red-950/60 hover:bg-red-600 p-2 rounded-lg transition" title="ඉවත් කරන්න">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+
+            // Tutes List
+            const tList = document.getElementById('teacherTuteList');
+            tList.innerHTML = window.tutesList.length === 0 ? '<p class="text-xs text-gray-500 py-2">එක්කළ Tutes නොමැත.</p>' :
+                window.tutesList.map(t => `
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs shadow-md">
+                        <div class="space-y-1">
+                            <span class="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-bold">${t.batch} | ${t.stream}</span>
+                            <h5 class="font-bold text-white">${t.title}</h5>
+                        </div>
+                        <button onclick="deleteItem('tute', '${t.id}')" class="text-red-500 hover:text-white bg-red-950/60 hover:bg-red-600 p-2 rounded-lg transition" title="ඉවත් කරන්න">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+
+            // Simulations List
+            const sList = document.getElementById('teacherSimList');
+            sList.innerHTML = window.simsList.length === 0 ? '<p class="text-xs text-gray-500 py-2">එක්කළ Simulations නොමැත.</p>' :
+                window.simsList.map(s => `
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs shadow-md">
+                        <div class="space-y-1">
+                            <span class="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-bold">${s.batch} | ${s.stream}</span>
+                            <h5 class="font-bold text-white">${s.title}</h5>
+                        </div>
+                        <button onclick="deleteItem('sim', '${s.id}')" class="text-red-500 hover:text-white bg-red-950/60 hover:bg-red-600 p-2 rounded-lg transition" title="ඉවත් කරන්න">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+        }
+
+        // Access Control Rule Checker
+        function checkStudentAccess() {
+            if (window.isTeacher) return { canView: true };
+            if (!window.currentUser) {
+                return { 
+                    canView: false, 
+                    reason: 'LOGIN_REQUIRED',
+                    msg: 'වීඩියෝ, ටියුට්ස් සහ ප්‍රායෝගික පරීක්ෂණ නැරඹීම සඳහා පළමුව ගිණුමට පිවිසෙන්න.'
+                };
+            }
+            if (!window.currentUser.approved) {
+                return { 
+                    canView: false, 
+                    reason: 'APPROVAL_PENDING',
+                    msg: 'ඔබගේ ගිණුම තවමත් ගුරුතුමාගේ (Shanaka Sadaruwan Sir) අනුමැතිය සඳහා පවතී. අනුමත වූ පසු සියලුම පාඩම් නැරඹිය හැක.'
+                };
+            }
+            return { canView: true };
+        }
+
+        // Student View Renderers
+        function renderStudentVideos() {
+            const grid = document.getElementById('studentVideoGrid');
+            const access = checkStudentAccess();
+
+            if (!access.canView) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center glass-panel rounded-3xl p-8 space-y-4 max-w-lg mx-auto">
+                        <i class="fa-solid ${access.reason === 'LOGIN_REQUIRED' ? 'fa-lock' : 'fa-user-clock'} text-5xl text-yellow-400"></i>
+                        <h3 class="text-xl font-black text-white">${access.reason === 'LOGIN_REQUIRED' ? 'ප්‍රවේශය සීමා කර ඇත' : 'අනුමැතිය සඳහා රැඳී පවතී'}</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">${access.msg}</p>
+                        ${access.reason === 'LOGIN_REQUIRED' ? `
+                            <button onclick="openModal('loginModal')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition">
+                                දැන්ම පිවිසෙන්න
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            const batch = document.getElementById('filterVideoBatch').value;
+            const stream = document.getElementById('filterVideoStream').value;
+            const filtered = window.videoLessons.filter(v => v.batch === batch && v.stream === stream);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center glass-panel rounded-3xl space-y-3">
+                        <i class="fa-solid fa-video-slash text-4xl text-gray-500"></i>
+                        <p class="text-sm font-bold text-gray-300">මෙම Batch එකට / Mode එකට අදාළ වීඩියෝ පාඩම් ඇතුළත් කර නොමැත.</p>
+                        <p class="text-xs text-gray-500">ගුරුතුමා විසින් පාඩම් එකතු කළ පසු මෙතැනින් නැරඹිය හැක.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(v => {
+                let embedUrl = v.link;
+                if (embedUrl.includes('watch?v=')) {
+                    embedUrl = embedUrl.replace('watch?v=', 'embed/');
+                } else if (embedUrl.includes('youtu.be/')) {
+                    embedUrl = embedUrl.replace('youtu.be/', 'www.youtube.com/embed/');
+                }
+                return `
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-yellow-500/30 flex flex-col justify-between shadow-xl">
+                        <div>
+                            <div class="aspect-video w-full bg-slate-950 relative flex items-center justify-center">
+                                ${embedUrl ? `<iframe src="${embedUrl}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>` : '<i class="fa-solid fa-play text-3xl text-gray-600"></i>'}
+                            </div>
+                            <div class="p-4 space-y-2">
+                                <span class="bg-red-600/80 text-white text-[10px] px-2 py-0.5 rounded font-bold">${v.unit || 'Physics Lesson'}</span>
+                                <h3 class="font-black text-white text-base">${v.title}</h3>
+                                <p class="text-xs text-gray-400 line-clamp-2">${v.desc || ''}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStudentTutes() {
+            const grid = document.getElementById('studentTuteGrid');
+            const access = checkStudentAccess();
+
+            if (!access.canView) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center glass-panel rounded-3xl p-8 space-y-4 max-w-lg mx-auto">
+                        <i class="fa-solid ${access.reason === 'LOGIN_REQUIRED' ? 'fa-lock' : 'fa-user-clock'} text-5xl text-yellow-400"></i>
+                        <h3 class="text-xl font-black text-white">${access.reason === 'LOGIN_REQUIRED' ? 'ප්‍රවේශය සීමා කර ඇත' : 'අනුමැතිය සඳහා රැඳී පවතී'}</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">${access.msg}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const batch = document.getElementById('filterTuteBatch').value;
+            const stream = document.getElementById('filterTuteStream').value;
+            const filtered = window.tutesList.filter(t => t.batch === batch && t.stream === stream);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center glass-panel rounded-3xl space-y-3">
+                        <i class="fa-solid fa-file-pdf text-4xl text-gray-500"></i>
+                        <p class="text-sm font-bold text-gray-300">මෙම බැච් එකට අදාළ ටියුට්ස් තවම එකතු කර නැත.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(t => `
+                <div class="glass-panel p-5 rounded-2xl border border-yellow-500/30 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 bg-red-600/20 text-red-500 rounded-xl flex items-center justify-center text-lg font-black">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <h3 class="font-black text-white text-base">${t.title}</h3>
+                        <p class="text-xs text-gray-400">${t.desc || ''}</p>
+                    </div>
+                    ${t.link ? `<a href="${t.link}" target="_blank" rel="noopener noreferrer" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-center font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2"><i class="fa-solid fa-download"></i> PDF බාගත කරන්න</a>` : '<span class="text-xs text-gray-500">ලින්ක් එකක් නොමැත</span>'}
+                </div>
+            `).join('');
+        }
+
+        function renderStudentSimulations() {
+            const grid = document.getElementById('studentSimGrid');
+            const access = checkStudentAccess();
+
+            if (!access.canView) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center glass-panel rounded-3xl p-8 space-y-4 max-w-lg mx-auto">
+                        <i class="fa-solid ${access.reason === 'LOGIN_REQUIRED' ? 'fa-lock' : 'fa-user-clock'} text-5xl text-yellow-400"></i>
+                        <h3 class="text-xl font-black text-white">${access.reason === 'LOGIN_REQUIRED' ? 'ප්‍රවේශය සීමා කර ඇත' : 'අනුමැතිය සඳහා රැඳී පවතී'}</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">${access.msg}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const batch = document.getElementById('filterSimBatch').value;
+            const stream = document.getElementById('filterSimStream').value;
+            const filtered = window.simsList.filter(s => s.batch === batch && s.stream === stream);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center glass-panel rounded-3xl space-y-3">
+                        <i class="fa-solid fa-atom text-4xl text-gray-500"></i>
+                        <p class="text-sm font-bold text-gray-300">මෙම බැච් එකට අදාළ ප්‍රායෝගික සිමියුලේෂන් එකතු කර නැත.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(s => `
+                <div class="glass-panel p-5 rounded-2xl border border-yellow-500/30 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 bg-blue-600/20 text-blue-400 rounded-xl flex items-center justify-center text-lg font-black">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <h3 class="font-black text-white text-base">${s.title}</h3>
+                    </div>
+                    ${s.link ? `<a href="${s.link}" target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2"><i class="fa-solid fa-external-link-alt"></i> සිමියුලේෂන් විවෘත කරන්න</a>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // DOM Load Execution
+        document.addEventListener('DOMContentLoaded', () => {
+            populateBatchSelectors();
+            updateAuthHeader();
+        });
+    </script>
+</body>
+</html>
